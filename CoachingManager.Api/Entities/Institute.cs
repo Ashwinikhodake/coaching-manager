@@ -15,6 +15,6 @@ public class Institute
     public string Phone { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public List<User> Users { get; set; } = new();
-    // public List<Batch> Batches { get; set; } = new();
-    // public List<Student> Students { get; set; } = new();
+    public List<Batch> Batches { get; set; } = new();
+    public List<Student> Students { get; set; } = new();
 }
