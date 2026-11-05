@@ -90,6 +90,101 @@ namespace CoachingManager.Api.Migrations
                     b.ToTable("batches", (string)null);
                 });
 
+            modelBuilder.Entity("CoachingManager.Api.Entities.FeeDue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("AmountDue")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("amount_due");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateOnly>("DueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("due_date");
+
+                    b.Property<int>("InstituteId")
+                        .HasColumnType("integer")
+                        .HasColumnName("institute_id");
+
+                    b.Property<DateOnly>("Month")
+                        .HasColumnType("date")
+                        .HasColumnName("month");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("student_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_fee_dues");
+
+                    b.HasIndex("InstituteId")
+                        .HasDatabaseName("ix_fee_dues_institute_id");
+
+                    b.HasIndex("StudentId", "Month")
+                        .IsUnique()
+                        .HasDatabaseName("ix_fee_dues_student_id_month");
+
+                    b.ToTable("fee_dues", (string)null);
+                });
+
+            modelBuilder.Entity("CoachingManager.Api.Entities.FeePlan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<decimal>("Discount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("discount");
+
+                    b.Property<int>("DueDay")
+                        .HasColumnType("integer")
+                        .HasColumnName("due_day");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<decimal>("MonthlyAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("monthly_amount");
+
+                    b.Property<DateOnly>("StartMonth")
+                        .HasColumnType("date")
+                        .HasColumnName("start_month");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("student_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_fee_plans");
+
+                    b.HasIndex("StudentId")
+                        .HasDatabaseName("ix_fee_plans_student_id");
+
+                    b.ToTable("fee_plans", (string)null);
+                });
+
             modelBuilder.Entity("CoachingManager.Api.Entities.Institute", b =>
                 {
                     b.Property<int>("Id")
@@ -125,6 +220,80 @@ namespace CoachingManager.Api.Migrations
                         .HasName("pk_institutes");
 
                     b.ToTable("institutes", (string)null);
+                });
+
+            modelBuilder.Entity("CoachingManager.Api.Entities.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<int>("FeeDueId")
+                        .HasColumnType("integer")
+                        .HasColumnName("fee_due_id");
+
+                    b.Property<int>("InstituteId")
+                        .HasColumnType("integer")
+                        .HasColumnName("institute_id");
+
+                    b.Property<string>("Mode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("mode");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("note");
+
+                    b.Property<DateOnly>("PaidOn")
+                        .HasColumnType("date")
+                        .HasColumnName("paid_on");
+
+                    b.Property<string>("ReceiptNo")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("receipt_no");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("student_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payments");
+
+                    b.HasIndex("CreatedByUserId")
+                        .HasDatabaseName("ix_payments_created_by_user_id");
+
+                    b.HasIndex("FeeDueId")
+                        .HasDatabaseName("ix_payments_fee_due_id");
+
+                    b.HasIndex("StudentId")
+                        .HasDatabaseName("ix_payments_student_id");
+
+                    b.HasIndex("InstituteId", "ReceiptNo")
+                        .IsUnique()
+                        .HasDatabaseName("ix_payments_institute_id_receipt_no");
+
+                    b.ToTable("payments", (string)null);
                 });
 
             modelBuilder.Entity("CoachingManager.Api.Entities.Student", b =>
@@ -308,6 +477,78 @@ namespace CoachingManager.Api.Migrations
                     b.Navigation("Teacher");
                 });
 
+            modelBuilder.Entity("CoachingManager.Api.Entities.FeeDue", b =>
+                {
+                    b.HasOne("CoachingManager.Api.Entities.Institute", "Institute")
+                        .WithMany()
+                        .HasForeignKey("InstituteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_fee_dues_institutes_institute_id");
+
+                    b.HasOne("CoachingManager.Api.Entities.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_fee_dues_students_student_id");
+
+                    b.Navigation("Institute");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("CoachingManager.Api.Entities.FeePlan", b =>
+                {
+                    b.HasOne("CoachingManager.Api.Entities.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_fee_plans_students_student_id");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("CoachingManager.Api.Entities.Payment", b =>
+                {
+                    b.HasOne("CoachingManager.Api.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_payments_users_created_by_user_id");
+
+                    b.HasOne("CoachingManager.Api.Entities.FeeDue", "FeeDue")
+                        .WithMany("Payments")
+                        .HasForeignKey("FeeDueId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_payments_fee_dues_fee_due_id");
+
+                    b.HasOne("CoachingManager.Api.Entities.Institute", "Institute")
+                        .WithMany()
+                        .HasForeignKey("InstituteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_payments_institutes_institute_id");
+
+                    b.HasOne("CoachingManager.Api.Entities.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_payments_students_student_id");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("FeeDue");
+
+                    b.Navigation("Institute");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("CoachingManager.Api.Entities.Student", b =>
                 {
                     b.HasOne("CoachingManager.Api.Entities.Institute", "Institute")
@@ -356,6 +597,11 @@ namespace CoachingManager.Api.Migrations
             modelBuilder.Entity("CoachingManager.Api.Entities.Batch", b =>
                 {
                     b.Navigation("StudentBatches");
+                });
+
+            modelBuilder.Entity("CoachingManager.Api.Entities.FeeDue", b =>
+                {
+                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("CoachingManager.Api.Entities.Institute", b =>
