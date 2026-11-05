@@ -17,6 +17,8 @@ public class AppDbContext : DbContext
     public DbSet<FeePlan> FeePlans { get; set; } = null!;
     public DbSet<FeeDue> FeeDues { get; set; } = null!;
     public DbSet<Payment> Payments { get; set; } = null!;
+    public DbSet<Attendance> Attendances { get; set; } = null!;
+    public DbSet<Notice> Notices { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -60,6 +62,23 @@ public class AppDbContext : DbContext
 
             entity.HasOne(p => p.FeeDue).WithMany(p => p.Payments).HasForeignKey(p => p.FeeDueId).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(p => p.CreatedBy).WithMany().HasForeignKey(p => p.CreatedByUserId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Attendance>(entity =>
+        {
+            entity.Property(a => a.Status).HasConversion<string>().HasMaxLength(20);
+            entity.HasIndex(a => new { a.BatchId, a.StudentId, a.Date }).IsUnique();
+            entity.HasOne(a => a.Batch).WithMany().HasForeignKey(a => a.BatchId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(a => a.Student).WithMany().HasForeignKey(a => a.StudentId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(a => a.MarkedBy).WithMany().HasForeignKey(a => a.MarkedByUserId).OnDelete(DeleteBehavior.Restrict);
+
+        });
+
+
+        modelBuilder.Entity<Notice>(entity =>
+        {
+            entity.HasOne(a => a.TargetBatch).WithMany().HasForeignKey(a => a.TargetBatchId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(a => a.CreatedBy).WithMany().HasForeignKey(a => a.CreatedByUserId).OnDelete(DeleteBehavior.Restrict);
         });
     }
 

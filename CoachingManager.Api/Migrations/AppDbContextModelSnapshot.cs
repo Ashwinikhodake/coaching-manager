@@ -22,6 +22,57 @@ namespace CoachingManager.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("CoachingManager.Api.Entities.Attendance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BatchId")
+                        .HasColumnType("integer")
+                        .HasColumnName("batch_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<int>("MarkedByUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("marked_by_user_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("student_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_attendances");
+
+                    b.HasIndex("MarkedByUserId")
+                        .HasDatabaseName("ix_attendances_marked_by_user_id");
+
+                    b.HasIndex("StudentId")
+                        .HasDatabaseName("ix_attendances_student_id");
+
+                    b.HasIndex("BatchId", "StudentId", "Date")
+                        .IsUnique()
+                        .HasDatabaseName("ix_attendances_batch_id_student_id_date");
+
+                    b.ToTable("attendances", (string)null);
+                });
+
             modelBuilder.Entity("CoachingManager.Api.Entities.Batch", b =>
                 {
                     b.Property<int>("Id")
@@ -220,6 +271,58 @@ namespace CoachingManager.Api.Migrations
                         .HasName("pk_institutes");
 
                     b.ToTable("institutes", (string)null);
+                });
+
+            modelBuilder.Entity("CoachingManager.Api.Entities.Notice", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<int>("InstituteId")
+                        .HasColumnType("integer")
+                        .HasColumnName("institute_id");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("message");
+
+                    b.Property<int?>("TargetBatchId")
+                        .HasColumnType("integer")
+                        .HasColumnName("target_batch_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("title");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notices");
+
+                    b.HasIndex("CreatedByUserId")
+                        .HasDatabaseName("ix_notices_created_by_user_id");
+
+                    b.HasIndex("InstituteId")
+                        .HasDatabaseName("ix_notices_institute_id");
+
+                    b.HasIndex("TargetBatchId")
+                        .HasDatabaseName("ix_notices_target_batch_id");
+
+                    b.ToTable("notices", (string)null);
                 });
 
             modelBuilder.Entity("CoachingManager.Api.Entities.Payment", b =>
@@ -457,6 +560,36 @@ namespace CoachingManager.Api.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("CoachingManager.Api.Entities.Attendance", b =>
+                {
+                    b.HasOne("CoachingManager.Api.Entities.Batch", "Batch")
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_attendances_batches_batch_id");
+
+                    b.HasOne("CoachingManager.Api.Entities.User", "MarkedBy")
+                        .WithMany()
+                        .HasForeignKey("MarkedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_attendances_users_marked_by_user_id");
+
+                    b.HasOne("CoachingManager.Api.Entities.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_attendances_students_student_id");
+
+                    b.Navigation("Batch");
+
+                    b.Navigation("MarkedBy");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("CoachingManager.Api.Entities.Batch", b =>
                 {
                     b.HasOne("CoachingManager.Api.Entities.Institute", "Institute")
@@ -508,6 +641,35 @@ namespace CoachingManager.Api.Migrations
                         .HasConstraintName("fk_fee_plans_students_student_id");
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("CoachingManager.Api.Entities.Notice", b =>
+                {
+                    b.HasOne("CoachingManager.Api.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_notices_users_created_by_user_id");
+
+                    b.HasOne("CoachingManager.Api.Entities.Institute", "Institute")
+                        .WithMany()
+                        .HasForeignKey("InstituteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notices_institutes_institute_id");
+
+                    b.HasOne("CoachingManager.Api.Entities.Batch", "TargetBatch")
+                        .WithMany()
+                        .HasForeignKey("TargetBatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_notices_batches_target_batch_id");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Institute");
+
+                    b.Navigation("TargetBatch");
                 });
 
             modelBuilder.Entity("CoachingManager.Api.Entities.Payment", b =>
