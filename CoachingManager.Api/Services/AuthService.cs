@@ -20,7 +20,7 @@ public class AuthService : IAuthService
         _config = config;
     }
 
-    public async Task<AuthResponse> RegisterSync(RegisterRequest request)
+    public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
     {
         var phoneTaken = await _db.Users.AnyAsync(u => u.Phone == request.Phone);
         if (phoneTaken)
