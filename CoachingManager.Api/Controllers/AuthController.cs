@@ -1,6 +1,8 @@
+using System.Security.Claims;
 using CoachingManager.Api.DTOs.Auth;
 using CoachingManager.Api.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 namespace CoachingManager.Api.Controllers;
 
 [ApiController]
@@ -38,6 +40,18 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(new { message = ex.Message });
         }
+    }
+    [Authorize]
+    [HttpGet("me")]
+    public IActionResult Me()
+    {
+        return Ok(new
+        {
+            userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+            name = User.FindFirst(ClaimTypes.Name)?.Value,
+            role = User.FindFirst(ClaimTypes.Role)?.Value,
+            instituteId = User.FindFirst("institute_id")?.Value,
+        });
     }
 }
 
