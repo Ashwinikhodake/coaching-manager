@@ -3,7 +3,9 @@ using CoachingManager.Api.DTOs.Auth;
 using CoachingManager.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using CoachingManager.Api.Extensions;
 namespace CoachingManager.Api.Controllers;
+
 
 [ApiController]
 [Route("api/auth")]
@@ -47,10 +49,10 @@ public class AuthController : ControllerBase
     {
         return Ok(new
         {
-            userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+            userId = User.GetUserId(),
             name = User.FindFirst(ClaimTypes.Name)?.Value,
             role = User.FindFirst(ClaimTypes.Role)?.Value,
-            instituteId = User.FindFirst("institute_id")?.Value,
+            instituteId = User.GetInstituteId()
         });
     }
 }
